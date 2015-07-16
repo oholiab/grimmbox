@@ -3,9 +3,9 @@
 default: run
 
 run: build
-	./grimmnight_commander || reset
+	./grimmbox || reset
 
-build: gc.go
+build: gc.go src
 	go build
 
 src: dependencies.txt
