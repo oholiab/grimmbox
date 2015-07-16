@@ -5,7 +5,7 @@ default: run
 run: build
 	./grimmbox || reset
 
-build: gc.go src
+build: gb.go src
 	go build
 
 src: dependencies.txt
