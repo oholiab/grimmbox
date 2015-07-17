@@ -30,8 +30,7 @@ type Box struct {
 
 func on_exit() {
 	fmt.Printf("thanks for playing\n")
-	ls()
-	fmt.Println("%v\n", strings.Join(debug, "||"))
+	fmt.Println(strings.Join(debug, "||"))
 }
 
 func makeBox(title, content string, x, y, height, width int) Box {
@@ -55,7 +54,7 @@ func ls() {
 	wd, _ := os.Getwd()
 	list, _ := ioutil.ReadDir(wd)
 	for _, file := range list {
-		fmt.Println("%v\n", file.Name())
+		fmt.Println(file.Name())
 	}
 }
 
