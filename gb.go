@@ -1,8 +1,6 @@
 package main
 
 import "fmt"
-import "os"
-import ioutil "io/ioutil"
 import ui "github.com/nsf/termbox-go"
 import "strings"
 import "strconv"
@@ -49,13 +47,6 @@ func makeBox(title, content string, x, y, height, width int) Box {
 	box.Text = content
 
 	return box
-}
-func ls() {
-	wd, _ := os.Getwd()
-	list, _ := ioutil.ReadDir(wd)
-	for _, file := range list {
-		fmt.Println(file.Name())
-	}
 }
 
 func drawBoxCorners(box Box) {
@@ -133,8 +124,11 @@ func main() {
 	w, h := ui.Size()
 	ridonk := " Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin vitae mollis eros. Aenean at nisl laoreet, porta risus in, placerat dolor. Etiam massa augue, consequat efficitur augue pellentesque, viverra facilisis ex. Curabitur tristique nulla eget urna semper vestibulum. Cras eget eros ex. Vestibulum at ante leo. Quisque faucibus vulputate lacus vitae porta. Vivamus nulla erat, elementum id pulvinar sed, dapibus non diam. Nulla varius finibus est, ut laoreet enim venenatis id. Aliquam suscipit lectus neque, sit amet sollicitudin dui accumsan nec. Nulla enim felis, molestie at facilisis vitae, elementum et mauris. Aenean sit amet finibus ligula, ut luctus elit. Nunc sit amet massa varius est sodales eleifend sit amet et quam. Fusce ac scelerisque magna. Pellentesque porttitor rutrum neque vel fermentum.  Nam sem quam, ultrices quis aliquam in, varius a neque. Fusce elit leo, consectetur in eleifend eget, facilisis at mi. Etiam porttitor gravida ipsum et sollicitudin. Integer magna mauris, bibendum ac porttitor interdum, mattis non libero. Duis placerat felis in pellentesque dignissim. Sed vitae rhoncus purus, sit amet pulvinar magna. Donec aliquam efficitur eros, eu mattis purus porttitor sed. Fusce neque elit, imperdiet vel eleifend ut, ornare vitae lectus. Maecenas tempus tortor a ante scelerisque pellentesque. Suspendisse ac turpis at nisi dictum rutrum ac nec nisi. Sed non ipsum ac nunc venenatis placerat."
 	box := makeBox("grimmwa.re", ridonk, 1, 2, h-3, w-3)
+	someMsg := "lots of words and stuff"
+	box2 := makeBox("stuff", someMsg, 4, 5, 3, len(someMsg)+2)
 	writeln(":PRESS C-q TO EXIT", 0, 0)
 	drawBox(box)
+	drawBox(box2)
 	ui.Flush()
 
 loop:
