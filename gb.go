@@ -111,18 +111,20 @@ func writeln(s string, x, y int) {
 	}
 }
 
-func on_exit() {
-	fmt.Printf("thanks for playing\n")
-	fmt.Println(strings.Join(debug, "||"))
-	fmt.Println(selBoxIndex)
-}
-
 func render(boxes []Box) {
 	boxList[selBoxIndex].RenderColor = selectColor
 	for _, box := range boxList {
 		drawBox(box)
 	}
 	ui.Flush()
+}
+
+// grimmbox functions above here for separation later
+
+func on_exit() {
+	fmt.Println("Debug:")
+	fmt.Println(strings.Join(debug, "||"))
+	fmt.Println(selBoxIndex)
 }
 
 func main() {
@@ -141,7 +143,7 @@ func main() {
 	boxList = append(boxList, makeBox("grimmwa.re", ridonk, 1, 2, h-3, w-3, orange))
 	someMsg := "lots of words and stuff"
 	boxList = append(boxList, makeBox("stuff", someMsg, 4, 5, 3, len(someMsg)+2, ui.ColorRed))
-	writeln(":PRESS C-q TO EXIT", 0, 0)
+	writeln(":PRESS C-c TO EXIT", 0, 0)
 	render(boxList)
 
 loop:
@@ -150,10 +152,14 @@ loop:
 		switch ev := ui.PollEvent(); ev.Type {
 		case ui.EventKey:
 			ui.Flush()
-			if ev.Key == ui.KeyCtrlQ {
+			if ev.Key == ui.KeyCtrlC {
 				break loop
 			} else if ev.Ch == 'j' {
-				selBoxIndex += 1
+				if uint(len(boxList))-1 == selBoxIndex {
+					selBoxIndex = 0
+				} else {
+					selBoxIndex += 1
+				}
 			} else if ev.Ch == 'k' {
 				if 0 == selBoxIndex {
 					selBoxIndex = uint(len(boxList)) - 1
