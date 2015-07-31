@@ -143,6 +143,7 @@ func main() {
 	boxList = append(boxList, makeBox("grimmwa.re", ridonk, 1, 2, h-3, w-3, orange))
 	someMsg := "lots of words and stuff"
 	boxList = append(boxList, makeBox("stuff", someMsg, 4, 5, 3, len(someMsg)+2, ui.ColorRed))
+	boxList = append(boxList, makeBox("otherstuff", someMsg, 4, 15, 3, len(someMsg)+2, ui.ColorRed))
 	writeln(":PRESS C-c TO EXIT", 0, 0)
 	render(boxList)
 
