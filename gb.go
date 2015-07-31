@@ -3,10 +3,15 @@ package main
 import "fmt"
 import ui "github.com/nsf/termbox-go"
 import "strings"
+import "net/http"
+import "log"
+import "io/ioutil"
+import "encoding/json"
+import "os"
 
 //import "strconv"
 
-var orange = ui.Attribute(0x005f)
+var orange = ui.Attribute(150)
 var f, d = orange, ui.ColorDefault
 var selectColor = ui.ColorDefault
 var debug []string
@@ -95,9 +100,9 @@ func boxText(text string, width, height int) ([]string, int) {
 			buf = buf[sliceLength:]
 		}
 	}
-	rem := len(lines) - height
+	rem := len(lines) - height + 2
 	if rem > 0 {
-		return lines[:height], rem
+		return lines[:height-2], rem
 	} else {
 		return lines, rem
 	}
@@ -129,6 +134,49 @@ func render(boxes []Box) {
 }
 
 // grimmbox functions above here for separation later
+// jira crap
+
+type Ticket struct {
+	ID          int
+	Key         string
+	Summary     string
+	Description string
+}
+
+type IssueWrapper struct {
+	Fields Ticket
+}
+
+type Issues struct {
+	Issues []IssueWrapper
+}
+
+func queryJIRA(jira, user, passwd string) []Ticket {
+	var issues Issues
+	var tickets []Ticket
+	proto := "https://"
+	req, err := http.NewRequest("GET", strings.Join([]string{proto, jira, "/rest/api/2/search?jql=assignee=", user, "+AND+status=Open&fields=id,key,summary,description"}, ""), nil)
+	req.Header = map[string][]string{
+		"Host":         {jira},
+		"Content-Type": {"application/json"},
+	}
+	req.SetBasicAuth(user, passwd)
+	req.ProtoMinor = 1
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		log.Fatal(err)
+	}
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.Fatal(err)
+	}
+	json.Unmarshal(body, &issues)
+	for _, ticket := range issues.Issues {
+		tickets = append(tickets, ticket.Fields)
+	}
+	return tickets
+}
+
 var ticketWidth = 20
 var ticketHeight = 5
 var tooSmall = false
@@ -161,12 +209,8 @@ func main() {
 	_, h := ui.Size()
 	offset := 1
 	viewPort := makeBox("grimmwa.re", "", ticketWidth, offset, h-3, get_viewport_width(), orange)
-	for i, ticket := range [...]string{
-		"things are broken",
-		"halp",
-		"computers need the fixening",
-	} {
-		boxList = append(boxList, makeBox(string(i), ticket, 0, i*ticketHeight+offset, ticketHeight, ticketWidth, orange))
+	for i, ticket := range queryJIRA(os.Getenv("JIRA"), os.Getenv("USER"), os.Getenv("JIRAPASS")) {
+		boxList = append(boxList, makeBox(ticket.Key, ticket.Summary, 0, i*ticketHeight+offset, ticketHeight, ticketWidth, orange))
 	}
 	writeln(":PRESS C-c TO EXIT", 0, 0)
 	render(append(boxList, viewPort))
