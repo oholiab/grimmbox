@@ -70,6 +70,14 @@ func drawBoxSides(box Box) {
 	}
 }
 
+func emptyBox(box Box) {
+	for i := box.TL.X + 1; i < box.TR.X; i++ {
+		for j := box.TL.Y + 1; j < box.BL.Y; j++ {
+			ui.SetCell(i, j, ' ', d, d)
+		}
+	}
+}
+
 func boxText(text string, width, height int) ([]string, int) {
 	var lines []string
 	var sliceLength int
@@ -98,6 +106,7 @@ func boxText(text string, width, height int) ([]string, int) {
 func drawBox(box Box) {
 	drawBoxCorners(box)
 	drawBoxSides(box)
+	emptyBox(box)
 	writeln(box.Title, box.TL.X+1, box.TL.Y)
 	lines, _ := boxText(box.Text, box.W, box.H)
 	for i, line := range lines {
@@ -113,7 +122,7 @@ func writeln(s string, x, y int) {
 
 func render(boxes []Box) {
 	boxList[selBoxIndex].RenderColor = selectColor
-	for _, box := range boxList {
+	for _, box := range boxes {
 		drawBox(box)
 	}
 	ui.Flush()
@@ -149,13 +158,9 @@ func main() {
 	defer ui.Close()
 
 	ui.SetOutputMode(ui.Output256)
-	// ui.SetInputMode(ui.InputEsc) //default
 	_, h := ui.Size()
-	boxList = append(boxList, makeBox("grimmwa.re", "", ticketWidth, 2, h-3, get_viewport_width(), orange))
-	//someMsg := "lots of words and stuff"
-	//boxList = append(boxList, makeBox("stuff", someMsg, 0, 5, 3, len(someMsg)+2, ui.ColorRed))
-	//boxList = append(boxList, makeBox("otherstuff", someMsg, 0, 15, 3, len(someMsg)+2, ui.ColorRed))
-	offset := 2
+	offset := 1
+	viewPort := makeBox("grimmwa.re", "", ticketWidth, offset, h-3, get_viewport_width(), orange)
 	for i, ticket := range [...]string{
 		"things are broken",
 		"halp",
@@ -164,7 +169,7 @@ func main() {
 		boxList = append(boxList, makeBox(string(i), ticket, 0, i*ticketHeight+offset, ticketHeight, ticketWidth, orange))
 	}
 	writeln(":PRESS C-c TO EXIT", 0, 0)
-	render(boxList)
+	render(append(boxList, viewPort))
 
 loop:
 	for {
@@ -187,12 +192,11 @@ loop:
 					selBoxIndex -= 1
 				}
 			}
-			debug = append(debug, string(ev.Ch))
-			debug = append(debug, string(selBoxIndex))
 		case ui.EventError:
 			panic(ev.Err)
 		}
-		render(boxList)
+		viewPort.Text = boxList[selBoxIndex].Text
+		render(append(boxList, viewPort))
 	}
 
 	return
