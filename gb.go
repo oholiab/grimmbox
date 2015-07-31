@@ -120,6 +120,18 @@ func render(boxes []Box) {
 }
 
 // grimmbox functions above here for separation later
+var ticketWidth = 20
+var ticketHeight = 5
+var tooSmall = false
+
+func get_viewport_width() int {
+	termWidth, _ := ui.Size()
+	if termWidth < ticketWidth {
+		tooSmall = true
+		return 0
+	}
+	return termWidth - ticketWidth
+}
 
 func on_exit() {
 	fmt.Println("Debug:")
@@ -138,12 +150,19 @@ func main() {
 
 	ui.SetOutputMode(ui.Output256)
 	// ui.SetInputMode(ui.InputEsc) //default
-	w, h := ui.Size()
-	ridonk := " Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin vitae mollis eros. Aenean at nisl laoreet, porta risus in, placerat dolor. Etiam massa augue, consequat efficitur augue pellentesque, viverra facilisis ex. Curabitur tristique nulla eget urna semper vestibulum. Cras eget eros ex. Vestibulum at ante leo. Quisque faucibus vulputate lacus vitae porta. Vivamus nulla erat, elementum id pulvinar sed, dapibus non diam. Nulla varius finibus est, ut laoreet enim venenatis id. Aliquam suscipit lectus neque, sit amet sollicitudin dui accumsan nec. Nulla enim felis, molestie at facilisis vitae, elementum et mauris. Aenean sit amet finibus ligula, ut luctus elit. Nunc sit amet massa varius est sodales eleifend sit amet et quam. Fusce ac scelerisque magna. Pellentesque porttitor rutrum neque vel fermentum.  Nam sem quam, ultrices quis aliquam in, varius a neque. Fusce elit leo, consectetur in eleifend eget, facilisis at mi. Etiam porttitor gravida ipsum et sollicitudin. Integer magna mauris, bibendum ac porttitor interdum, mattis non libero. Duis placerat felis in pellentesque dignissim. Sed vitae rhoncus purus, sit amet pulvinar magna. Donec aliquam efficitur eros, eu mattis purus porttitor sed. Fusce neque elit, imperdiet vel eleifend ut, ornare vitae lectus. Maecenas tempus tortor a ante scelerisque pellentesque. Suspendisse ac turpis at nisi dictum rutrum ac nec nisi. Sed non ipsum ac nunc venenatis placerat."
-	boxList = append(boxList, makeBox("grimmwa.re", ridonk, 1, 2, h-3, w-3, orange))
-	someMsg := "lots of words and stuff"
-	boxList = append(boxList, makeBox("stuff", someMsg, 4, 5, 3, len(someMsg)+2, ui.ColorRed))
-	boxList = append(boxList, makeBox("otherstuff", someMsg, 4, 15, 3, len(someMsg)+2, ui.ColorRed))
+	_, h := ui.Size()
+	boxList = append(boxList, makeBox("grimmwa.re", "", ticketWidth, 2, h-3, get_viewport_width(), orange))
+	//someMsg := "lots of words and stuff"
+	//boxList = append(boxList, makeBox("stuff", someMsg, 0, 5, 3, len(someMsg)+2, ui.ColorRed))
+	//boxList = append(boxList, makeBox("otherstuff", someMsg, 0, 15, 3, len(someMsg)+2, ui.ColorRed))
+	offset := 2
+	for i, ticket := range [...]string{
+		"things are broken",
+		"halp",
+		"computers need the fixening",
+	} {
+		boxList = append(boxList, makeBox(string(i), ticket, 0, i*ticketHeight+offset, ticketHeight, ticketWidth, orange))
+	}
 	writeln(":PRESS C-c TO EXIT", 0, 0)
 	render(boxList)
 
